@@ -39,45 +39,41 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-card shadow-sm border-b border-border">
-        <div className="container mx-auto px-4 py-6">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-center text-foreground">
-            🇧🇷 Amigos BR
-          </h1>
-        </div>
+      <header className="border-b border-border py-4">
+        <h1 className="text-2xl font-bold text-center text-foreground">
+          🇧🇷 Amigos BR
+        </h1>
       </header>
 
       {/* Stats Section */}
-      <section className="container mx-auto px-4 py-8">
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          {/* Subscribers Count */}
+      <section className="container mx-auto px-4 py-4">
+        <div className="flex flex-wrap items-center justify-center gap-3">
           <div className="stats-badge">
-            <Users className="w-5 h-5 text-primary" />
-            <span className="font-semibold">20.458 inscritos</span>
+            <Users className="w-4 h-4 text-primary" />
+            <span>20.458 inscritos</span>
           </div>
 
-          {/* Location */}
           <div className="location-badge">
-            <MapPin className="w-5 h-5" />
+            <MapPin className="w-4 h-4" />
             {loading ? (
-              <span className="flex items-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin" />
+              <span className="flex items-center gap-1">
+                <Loader2 className="w-3 h-3 animate-spin" />
                 Detectando...
               </span>
             ) : (
-              <span className="font-semibold">{city}</span>
+              <span>{city}</span>
             )}
           </div>
         </div>
       </section>
 
       {/* Groups Section */}
-      <main className="container mx-auto px-4 pb-12">
-        <h2 className="text-xl font-bold text-foreground mb-6 text-center">
+      <main className="container mx-auto px-4 pb-8">
+        <h2 className="text-base font-semibold text-foreground mb-4 text-center">
           Grupos Disponíveis
         </h2>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 max-w-3xl mx-auto">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 max-w-2xl mx-auto">
           {groups.map((group, index) => (
             <GroupCard
               key={index}
@@ -91,12 +87,10 @@ const Index = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-card border-t border-border py-6">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-muted-foreground text-sm">
-            © 2024 Amigos BR - Todos os direitos reservados
-          </p>
-        </div>
+      <footer className="border-t border-border py-4">
+        <p className="text-muted-foreground text-xs text-center">
+          © 2024 Amigos BR
+        </p>
       </footer>
     </div>
   );
