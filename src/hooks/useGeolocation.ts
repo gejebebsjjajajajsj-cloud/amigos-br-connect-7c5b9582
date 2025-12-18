@@ -20,30 +20,64 @@ export const useGeolocation = (): LocationData => {
   useEffect(() => {
     const fetchLocation = async () => {
       try {
-        // Using ip-api.com for geolocation (free, no API key needed)
-        const response = await fetch('http://ip-api.com/json/?lang=pt-BR');
+        // Using ipapi.co which works with HTTPS
+        const response = await fetch('https://ipapi.co/json/');
         const data = await response.json();
         
-        if (data.status === 'success') {
+        if (data.city) {
           setLocation({
-            city: data.city || 'Sua cidade',
-            region: data.regionName || '',
-            country: data.country || 'Brasil',
+            city: data.city,
+            region: data.region || '',
+            country: data.country_name || 'Brasil',
             loading: false,
             error: null,
           });
         } else {
-          setLocation(prev => ({
-            ...prev,
-            city: 'Brasil',
-            loading: false,
-            error: null,
-          }));
+          // Fallback to browser geolocation
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              async (position) => {
+                try {
+                  const { latitude, longitude } = position.coords;
+                  const geoResponse = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+                  );
+                  const geoData = await geoResponse.json();
+                  setLocation({
+                    city: geoData.address?.city || geoData.address?.town || geoData.address?.municipality || 'Sua cidade',
+                    region: geoData.address?.state || '',
+                    country: geoData.address?.country || 'Brasil',
+                    loading: false,
+                    error: null,
+                  });
+                } catch {
+                  setLocation(prev => ({
+                    ...prev,
+                    city: 'Sua cidade',
+                    loading: false,
+                  }));
+                }
+              },
+              () => {
+                setLocation(prev => ({
+                  ...prev,
+                  city: 'Sua cidade',
+                  loading: false,
+                }));
+              }
+            );
+          } else {
+            setLocation(prev => ({
+              ...prev,
+              city: 'Sua cidade',
+              loading: false,
+            }));
+          }
         }
       } catch (error) {
         setLocation(prev => ({
           ...prev,
-          city: 'Brasil',
+          city: 'Sua cidade',
           loading: false,
           error: null,
         }));

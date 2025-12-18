@@ -6,53 +6,53 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 222 47% 11%;
+    --background: 0 0% 7%;
+    --foreground: 0 0% 95%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 200 100% 40%;
+    --primary: 200 100% 45%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 20% 96%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 0 0% 18%;
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 210 20% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 0 0% 18%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 200 100% 95%;
-    --accent-foreground: 200 100% 30%;
+    --accent: 200 100% 20%;
+    --accent-foreground: 200 100% 80%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 200 100% 40%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 200 100% 45%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
     /* Telegram colors */
-    --telegram: 200 100% 40%;
+    --telegram: 200 100% 45%;
     --telegram-foreground: 0 0% 100%;
-    --telegram-hover: 200 100% 35%;
+    --telegram-hover: 200 100% 50%;
 
     /* Custom colors */
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 0 0% 10%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 200 100% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 200 100% 45%;
   }
 
   .dark {
@@ -112,18 +112,18 @@
 
 @layer components {
   .group-card {
-    @apply bg-card rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+    @apply bg-card rounded-lg overflow-hidden transition-all duration-300 hover:ring-1 hover:ring-primary/50;
   }
 
   .group-banner {
-    @apply w-full h-40 bg-muted overflow-hidden;
+    @apply w-full h-24 bg-muted overflow-hidden;
   }
 
   .stats-badge {
-    @apply inline-flex items-center gap-2 px-4 py-2 bg-accent text-accent-foreground rounded-full text-sm font-medium;
+    @apply inline-flex items-center gap-2 px-3 py-1.5 bg-secondary text-foreground rounded-full text-sm font-medium;
   }
 
   .location-badge {
-    @apply inline-flex items-center gap-2 px-4 py-2 bg-telegram/10 text-primary rounded-full text-sm font-medium;
+    @apply inline-flex items-center gap-2 px-3 py-1.5 bg-primary/20 text-primary rounded-full text-sm font-medium;
   }
 }
