@@ -19,8 +19,10 @@ export type Database = {
           avatar_url: string | null
           banner_url: string | null
           bio: string | null
+          button_color: string | null
           button_text: string | null
           created_at: string
+          deliverable_link: string | null
           id: string
           name: string
           photos_count: number | null
@@ -32,8 +34,10 @@ export type Database = {
           avatar_url?: string | null
           banner_url?: string | null
           bio?: string | null
+          button_color?: string | null
           button_text?: string | null
           created_at?: string
+          deliverable_link?: string | null
           id?: string
           name?: string
           photos_count?: number | null
@@ -45,8 +49,10 @@ export type Database = {
           avatar_url?: string | null
           banner_url?: string | null
           bio?: string | null
+          button_color?: string | null
           button_text?: string | null
           created_at?: string
+          deliverable_link?: string | null
           id?: string
           name?: string
           photos_count?: number | null

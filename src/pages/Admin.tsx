@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { Upload, Save, LogOut, Trash2, Image, Video, Home } from 'lucide-react';
+import { Upload, Save, LogOut, Trash2, Image, Video, Home, Link2 } from 'lucide-react';
 
 interface ClubProfile {
   id: string;
@@ -16,6 +16,8 @@ interface ClubProfile {
   avatar_url: string | null;
   price: number;
   button_text: string;
+  button_color: string;
+  deliverable_link: string | null;
   photos_count: number;
   videos_count: number;
 }
@@ -38,6 +40,7 @@ const Admin = () => {
   const [uploadingBanner, setUploadingBanner] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -49,6 +52,23 @@ const Admin = () => {
       navigate('/auth');
       return;
     }
+
+    // Check if user has admin role
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', session.user.id)
+      .eq('role', 'admin')
+      .single();
+
+    if (!roleData) {
+      toast.error('Acesso negado. Você não é administrador.');
+      await supabase.auth.signOut();
+      navigate('/auth');
+      return;
+    }
+
+    setIsAdmin(true);
     fetchData();
   };
 
@@ -58,7 +78,13 @@ const Admin = () => {
       supabase.from('gallery_items').select('*').order('display_order')
     ]);
 
-    if (profileRes.data) setProfile(profileRes.data);
+    if (profileRes.data) {
+      setProfile({
+        ...profileRes.data,
+        button_color: profileRes.data.button_color || '#f97316',
+        deliverable_link: profileRes.data.deliverable_link || null
+      });
+    }
     if (galleryRes.data) setGalleryItems(galleryRes.data);
     setLoading(false);
   };
@@ -87,7 +113,6 @@ const Admin = () => {
 
   const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    // reset input so selecting the same file again triggers onChange
     e.target.value = '';
     if (!file || !profile) return;
 
@@ -188,6 +213,8 @@ const Admin = () => {
         bio: profile.bio,
         price: profile.price,
         button_text: profile.button_text,
+        button_color: profile.button_color,
+        deliverable_link: profile.deliverable_link,
         photos_count: profile.photos_count,
         videos_count: profile.videos_count
       })
@@ -207,6 +234,10 @@ const Admin = () => {
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
+  }
+
+  if (!isAdmin) {
+    return null;
   }
 
   return (
@@ -289,7 +320,7 @@ const Admin = () => {
           <h2 className="text-sm font-semibold text-foreground">Informações</h2>
           
           <div className="space-y-2">
-            <Label htmlFor="name">Nome</Label>
+            <Label htmlFor="name">Nome da Modelo</Label>
             <Input
               id="name"
               value={profile?.name || ''}
@@ -309,11 +340,12 @@ const Admin = () => {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="button_text">Texto do Botão</Label>
+              <Label htmlFor="button_text">Nome do Botão</Label>
               <Input
                 id="button_text"
                 value={profile?.button_text || ''}
                 onChange={(e) => setProfile(profile ? { ...profile, button_text: e.target.value } : null)}
+                placeholder="Ex: Desbloquear"
               />
             </div>
             <div className="space-y-2">
@@ -325,6 +357,31 @@ const Admin = () => {
                 value={profile?.price || 0}
                 onChange={(e) => setProfile(profile ? { ...profile, price: parseFloat(e.target.value) } : null)}
               />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="button_color">Cor do Botão</Label>
+            <div className="flex gap-3 items-center">
+              <input
+                id="button_color"
+                type="color"
+                value={profile?.button_color || '#f97316'}
+                onChange={(e) => setProfile(profile ? { ...profile, button_color: e.target.value } : null)}
+                className="w-12 h-10 rounded-lg cursor-pointer border border-border"
+              />
+              <Input
+                value={profile?.button_color || '#f97316'}
+                onChange={(e) => setProfile(profile ? { ...profile, button_color: e.target.value } : null)}
+                placeholder="#f97316"
+                className="flex-1"
+              />
+              <div 
+                className="h-10 px-4 rounded-lg flex items-center justify-center text-white text-sm font-medium"
+                style={{ backgroundColor: profile?.button_color || '#f97316' }}
+              >
+                Preview
+              </div>
             </div>
           </div>
 
@@ -348,17 +405,34 @@ const Admin = () => {
               />
             </div>
           </div>
-
-          <Button onClick={handleSaveProfile} disabled={saving} className="w-full">
-            <Save className="w-4 h-4 mr-2" />
-            {saving ? 'Salvando...' : 'Salvar Alterações'}
-          </Button>
         </section>
+
+        {/* Deliverable Link */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Link2 className="w-4 h-4 text-primary" />
+            <h2 className="text-sm font-semibold text-foreground">Link do Entregável</h2>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Link que será mostrado ao cliente após confirmar o pagamento (ex: grupo do Telegram/WhatsApp)
+          </p>
+          <Input
+            value={profile?.deliverable_link || ''}
+            onChange={(e) => setProfile(profile ? { ...profile, deliverable_link: e.target.value } : null)}
+            placeholder="https://t.me/seugrupo ou https://chat.whatsapp.com/..."
+          />
+        </section>
+
+        {/* Save Button */}
+        <Button onClick={handleSaveProfile} disabled={saving} className="w-full">
+          <Save className="w-4 h-4 mr-2" />
+          {saving ? 'Salvando...' : 'Salvar Todas as Alterações'}
+        </Button>
 
         {/* Gallery */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-foreground">Galeria</h2>
+            <h2 className="text-sm font-semibold text-foreground">Galeria (Prévia)</h2>
             <div className="flex gap-2">
               <label>
                 <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => handleGalleryUpload(e, 'photo')} disabled={uploadingGallery} />
