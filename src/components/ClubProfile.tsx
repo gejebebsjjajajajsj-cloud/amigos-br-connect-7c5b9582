@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Lock, Play, Sparkles } from 'lucide-react';
+import { Lock, Play, Sparkles, Camera, Film } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import PaymentModal from './PaymentModal';
 
@@ -11,6 +11,8 @@ interface ClubProfile {
   avatar_url: string | null;
   price: number;
   button_text: string;
+  button_color: string;
+  deliverable_link: string | null;
   photos_count: number;
   videos_count: number;
 }
@@ -35,7 +37,13 @@ const ClubProfile = () => {
         supabase.from('gallery_items').select('*').eq('is_preview', true).order('display_order').limit(6)
       ]);
 
-      if (profileRes.data) setProfile(profileRes.data);
+      if (profileRes.data) {
+        setProfile({
+          ...profileRes.data,
+          button_color: profileRes.data.button_color || '#f97316',
+          deliverable_link: profileRes.data.deliverable_link || null
+        });
+      }
       if (galleryRes.data) setGalleryItems(galleryRes.data);
       setLoading(false);
     };
@@ -50,6 +58,8 @@ const ClubProfile = () => {
       </div>
     );
   }
+
+  const buttonColor = profile?.button_color || '#f97316';
 
   return (
     <div className="min-h-screen bg-background">
@@ -71,7 +81,13 @@ const ClubProfile = () => {
       <div className="max-w-lg mx-auto px-4 -mt-16 relative z-10 pb-8">
         {/* Avatar */}
         <div className="flex flex-col items-center">
-          <div className="w-28 h-28 rounded-full border-4 border-primary overflow-hidden shadow-2xl ring-4 ring-primary/20">
+          <div 
+            className="w-28 h-28 rounded-full border-4 overflow-hidden shadow-2xl ring-4"
+            style={{ 
+              borderColor: buttonColor,
+              boxShadow: `0 0 20px ${buttonColor}30`
+            }}
+          >
             {profile?.avatar_url ? (
               <img 
                 src={profile.avatar_url}
@@ -91,12 +107,15 @@ const ClubProfile = () => {
           
           {/* Verified Badge */}
           <div className="flex items-center gap-1.5 mt-1">
-            <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center">
-              <svg className="w-2.5 h-2.5 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
+            <div 
+              className="w-4 h-4 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: buttonColor }}
+            >
+              <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
             </div>
-            <span className="text-xs text-primary font-medium">Perfil Verificado</span>
+            <span className="text-xs font-medium" style={{ color: buttonColor }}>Perfil Verificado</span>
           </div>
         </div>
 
@@ -107,23 +126,34 @@ const ClubProfile = () => {
           </p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 gap-3 mt-4">
-          <div className="bg-card/50 backdrop-blur-sm rounded-xl p-4 border border-border/50 text-center">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
-              <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+        {/* Stats - New Layout */}
+        <div className="mt-4 flex items-center justify-center gap-8">
+          <div className="flex items-center gap-2">
+            <div 
+              className="w-10 h-10 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: `${buttonColor}20` }}
+            >
+              <Camera className="w-5 h-5" style={{ color: buttonColor }} />
             </div>
-            <p className="text-2xl font-bold text-foreground">{profile?.photos_count || 0}</p>
-            <p className="text-xs text-muted-foreground">Fotos Exclusivas</p>
+            <div>
+              <p className="text-lg font-bold text-foreground">{profile?.photos_count || 0}</p>
+              <p className="text-xs text-muted-foreground">Fotos</p>
+            </div>
           </div>
-          <div className="bg-card/50 backdrop-blur-sm rounded-xl p-4 border border-border/50 text-center">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
-              <Play className="w-5 h-5 text-primary" />
+          
+          <div className="w-px h-10 bg-border" />
+          
+          <div className="flex items-center gap-2">
+            <div 
+              className="w-10 h-10 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: `${buttonColor}20` }}
+            >
+              <Film className="w-5 h-5" style={{ color: buttonColor }} />
             </div>
-            <p className="text-2xl font-bold text-foreground">{profile?.videos_count || 0}</p>
-            <p className="text-xs text-muted-foreground">Vídeos Exclusivos</p>
+            <div>
+              <p className="text-lg font-bold text-foreground">{profile?.videos_count || 0}</p>
+              <p className="text-xs text-muted-foreground">Vídeos</p>
+            </div>
           </div>
         </div>
 
@@ -143,16 +173,21 @@ const ClubProfile = () => {
           </div>
         </div>
 
-        {/* Purchase Button */}
+        {/* Purchase Button - Dynamic Color */}
         <div className="mt-6">
           <button 
             onClick={() => setShowPayment(true)}
-            className="w-full relative group overflow-hidden rounded-2xl bg-gradient-to-r from-primary to-orange-400 p-[2px] transition-all hover:scale-[1.02] active:scale-[0.98]"
+            className="w-full relative group overflow-hidden rounded-2xl p-[2px] transition-all hover:scale-[1.02] active:scale-[0.98]"
+            style={{ 
+              background: `linear-gradient(135deg, ${buttonColor}, ${buttonColor}cc)` 
+            }}
           >
             <div className="relative flex items-center justify-center gap-2 rounded-2xl bg-background px-6 py-4 transition-all group-hover:bg-background/80">
-              <Sparkles className="w-5 h-5 text-primary" />
+              <Sparkles className="w-5 h-5" style={{ color: buttonColor }} />
               <span className="font-bold text-foreground">{profile?.button_text || 'Desbloquear'}</span>
-              <span className="text-primary font-bold">R$ {profile?.price?.toFixed(2).replace('.', ',') || '29,90'}</span>
+              <span className="font-bold" style={{ color: buttonColor }}>
+                R$ {profile?.price?.toFixed(2).replace('.', ',') || '29,90'}
+              </span>
             </div>
           </button>
           <p className="text-center text-xs text-muted-foreground mt-2">
@@ -166,6 +201,7 @@ const ClubProfile = () => {
           onClose={() => setShowPayment(false)}
           price={profile?.price || 29.90}
           productName={`Acesso VIP - ${profile?.name || 'Conteúdo Exclusivo'}`}
+          deliverableLink={profile?.deliverable_link}
         />
 
         {/* What's Included */}
@@ -173,19 +209,19 @@ const ClubProfile = () => {
           <p className="text-sm font-medium text-foreground mb-3 text-center">O que você vai receber:</p>
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <svg className="w-4 h-4 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-4 h-4 flex-shrink-0" style={{ color: buttonColor }} fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
               <span>Acesso a todas as fotos e vídeos</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <svg className="w-4 h-4 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-4 h-4 flex-shrink-0" style={{ color: buttonColor }} fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
               <span>Conteúdo exclusivo e privado</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <svg className="w-4 h-4 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-4 h-4 flex-shrink-0" style={{ color: buttonColor }} fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
               <span>Atualizações frequentes</span>
