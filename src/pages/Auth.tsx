@@ -43,31 +43,6 @@ const Auth = () => {
     setLoading(false);
   };
 
-  const handleSignUp = async () => {
-    if (!email || !password) {
-      toast.error('Preencha email e senha');
-      return;
-    }
-    setLoading(true);
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/admin`
-      }
-    });
-
-    if (error) {
-      toast.error(error.message);
-      setLoading(false);
-      return;
-    }
-
-    toast.success('Conta criada! Agora faça login.');
-    setLoading(false);
-  };
-
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-sm space-y-6">
@@ -117,16 +92,6 @@ const Auth = () => {
             disabled={loading}
           >
             {loading ? 'Entrando...' : 'Entrar'}
-          </Button>
-
-          <Button 
-            type="button"
-            variant="outline"
-            className="w-full"
-            disabled={loading}
-            onClick={handleSignUp}
-          >
-            Criar Conta (Temporário)
           </Button>
         </form>
 
