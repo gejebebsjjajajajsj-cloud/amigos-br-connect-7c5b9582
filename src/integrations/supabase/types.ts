@@ -20,6 +20,7 @@ export type Database = {
           banner_url: string | null
           bio: string | null
           button_color: string | null
+          button_icon: string | null
           button_text: string | null
           created_at: string
           deliverable_link: string | null
@@ -36,6 +37,7 @@ export type Database = {
           banner_url?: string | null
           bio?: string | null
           button_color?: string | null
+          button_icon?: string | null
           button_text?: string | null
           created_at?: string
           deliverable_link?: string | null
@@ -52,6 +54,7 @@ export type Database = {
           banner_url?: string | null
           bio?: string | null
           button_color?: string | null
+          button_icon?: string | null
           button_text?: string | null
           created_at?: string
           deliverable_link?: string | null
