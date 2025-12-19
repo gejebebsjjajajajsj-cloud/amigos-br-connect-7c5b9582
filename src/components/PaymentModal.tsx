@@ -23,6 +23,7 @@ const PaymentModal = ({ isOpen, onClose, price, productName, deliverableLink }: 
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showDeliverable, setShowDeliverable] = useState(false);
+  const [verifyingPayment, setVerifyingPayment] = useState(false);
 
   useEffect(() => {
     if (isOpen && !paymentData && !loading) {
@@ -73,18 +74,46 @@ const PaymentModal = ({ isOpen, onClose, price, productName, deliverableLink }: 
     setPaymentData(null);
     setError(null);
     setShowDeliverable(false);
+    setVerifyingPayment(false);
     onClose();
   };
 
-  const handleConfirmPayment = () => {
-    setShowDeliverable(true);
+  const handleConfirmPayment = async () => {
+    if (!paymentData?.transactionId) {
+      toast.error('ID da transação não encontrado');
+      return;
+    }
+
+    setVerifyingPayment(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('check-pix-payment', {
+        body: { transactionId: paymentData.transactionId },
+      });
+
+      if (error) throw error;
+
+      console.log('Payment verification result:', data);
+
+      if (data.isPaid) {
+        toast.success('Pagamento confirmado!');
+        setShowDeliverable(true);
+      } else {
+        toast.error('Pagamento ainda não confirmado. Aguarde alguns segundos após pagar e tente novamente.');
+      }
+    } catch (error: any) {
+      console.error('Verification error:', error);
+      toast.error('Erro ao verificar pagamento. Tente novamente.');
+    } finally {
+      setVerifyingPayment(false);
+    }
   };
 
   // Show deliverable after payment confirmation
   if (showDeliverable && deliverableLink) {
     return (
       <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="bg-background border-border max-w-sm mx-4">
+        <DialogContent className="bg-background border-border max-w-sm mx-auto">
           <DialogHeader>
             <DialogTitle className="text-foreground text-center text-lg">
               🎉 Acesso Liberado!
@@ -119,7 +148,7 @@ const PaymentModal = ({ isOpen, onClose, price, productName, deliverableLink }: 
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="bg-background border-border max-w-sm mx-4">
+      <DialogContent className="bg-background border-border max-w-sm mx-auto">
         <DialogHeader>
           <DialogTitle className="text-foreground text-center text-base">
             Pagamento PIX
@@ -152,12 +181,12 @@ const PaymentModal = ({ isOpen, onClose, price, productName, deliverableLink }: 
 
           {paymentData && !loading && (
             <>
-              {/* QR Code - smaller for mobile */}
+              {/* QR Code - centralizado */}
               <div className="flex justify-center">
-                <div className="bg-white p-2 rounded-lg">
+                <div className="bg-white p-3 rounded-lg shadow-sm">
                   <QRCodeSVG 
                     value={paymentData.paymentCode} 
-                    size={140}
+                    size={160}
                     level="M"
                   />
                 </div>
@@ -165,12 +194,12 @@ const PaymentModal = ({ isOpen, onClose, price, productName, deliverableLink }: 
 
               {/* PIX Code - compact */}
               <div className="space-y-1.5">
-                <p className="text-xs font-medium text-muted-foreground">Código PIX:</p>
+                <p className="text-xs font-medium text-muted-foreground text-center">Código PIX:</p>
                 <div 
                   onClick={copyPixCode}
                   className="bg-muted/50 border border-border rounded-lg p-2 cursor-pointer hover:bg-muted/70 transition-colors"
                 >
-                  <p className="text-[10px] text-foreground break-all line-clamp-2">
+                  <p className="text-[10px] text-foreground break-all line-clamp-2 text-center">
                     {paymentData.paymentCode}
                   </p>
                 </div>
@@ -194,21 +223,31 @@ const PaymentModal = ({ isOpen, onClose, price, productName, deliverableLink }: 
                 )}
               </Button>
 
-              {/* Confirm Payment Button */}
+              {/* Confirm Payment Button - with verification */}
               {deliverableLink && (
                 <Button
                   onClick={handleConfirmPayment}
+                  disabled={verifyingPayment}
                   variant="outline"
-                  className="w-full h-9 border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
+                  className="w-full h-9 border-green-600 text-green-600 hover:bg-green-600 hover:text-white disabled:opacity-50"
                   size="sm"
                 >
-                  <CheckCircle className="w-4 h-4 mr-1.5" />
-                  Já paguei!
+                  {verifyingPayment ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                      Verificando...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-4 h-4 mr-1.5" />
+                      Verificar Pagamento
+                    </>
+                  )}
                 </Button>
               )}
 
               <p className="text-[10px] text-center text-muted-foreground">
-                Escaneie o QR code ou copie o código PIX
+                Escaneie o QR code ou copie o código PIX. Após pagar, clique em "Verificar Pagamento".
               </p>
             </>
           )}
