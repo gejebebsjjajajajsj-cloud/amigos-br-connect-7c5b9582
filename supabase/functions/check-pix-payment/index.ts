@@ -51,13 +51,17 @@ serve(async (req) => {
     console.log('Got access token, checking transaction status...');
 
     // Step 2: Check payment status
-    const statusResponse = await fetch(`https://api.syncpayments.com.br/v1/gateway/api/${transactionId}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    // Docs: GET /api/partner/v1/transaction/{identifier}
+    const statusResponse = await fetch(
+      `https://api.syncpayments.com.br/api/partner/v1/transaction/${transactionId}`,
+      {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
 
     if (!statusResponse.ok) {
       const errorText = await statusResponse.text();
@@ -68,10 +72,8 @@ serve(async (req) => {
     const statusData = await statusResponse.json();
     console.log('Payment status response:', JSON.stringify(statusData));
 
-    // Check if payment is approved/paid
-    // Common status values: "paid", "approved", "pending", "refused", "refunded"
-    const status = statusData.status_transaction || statusData.status || 'unknown';
-    const isPaid = ['paid', 'approved', 'PAID', 'APPROVED', 'completed', 'COMPLETED'].includes(status);
+    const status = statusData?.data?.status || 'unknown';
+    const isPaid = status === 'completed';
 
     return new Response(
       JSON.stringify({
