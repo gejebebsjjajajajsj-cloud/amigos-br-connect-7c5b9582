@@ -17,6 +17,7 @@ interface ClubProfile {
   price: number;
   button_text: string;
   button_color: string;
+  button_icon: string;
   deliverable_link: string | null;
   photos_count: number;
   videos_count: number;
@@ -82,6 +83,7 @@ const Admin = () => {
       setProfile({
         ...profileRes.data,
         button_color: profileRes.data.button_color || '#f97316',
+        button_icon: profileRes.data.button_icon || '🔥',
         deliverable_link: profileRes.data.deliverable_link || null
       });
     }
@@ -214,6 +216,7 @@ const Admin = () => {
         price: profile.price,
         button_text: profile.button_text,
         button_color: profile.button_color,
+        button_icon: profile.button_icon,
         deliverable_link: profile.deliverable_link,
         photos_count: profile.photos_count,
         videos_count: profile.videos_count
@@ -349,15 +352,26 @@ const Admin = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="price">Preço (R$)</Label>
+              <Label htmlFor="button_icon">Emoji do Botão</Label>
               <Input
-                id="price"
-                type="number"
-                step="0.01"
-                value={profile?.price || 0}
-                onChange={(e) => setProfile(profile ? { ...profile, price: parseFloat(e.target.value) } : null)}
+                id="button_icon"
+                value={profile?.button_icon || '🔥'}
+                onChange={(e) => setProfile(profile ? { ...profile, button_icon: e.target.value } : null)}
+                placeholder="🔥"
+                className="text-xl"
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="price">Preço (R$)</Label>
+            <Input
+              id="price"
+              type="number"
+              step="0.01"
+              value={profile?.price || 0}
+              onChange={(e) => setProfile(profile ? { ...profile, price: parseFloat(e.target.value) } : null)}
+            />
           </div>
 
           <div className="space-y-2">

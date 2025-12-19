@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Lock, Play, Sparkles, Camera, Film } from 'lucide-react';
+import { Lock, Play, Camera, Film } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import PaymentModal from './PaymentModal';
 
@@ -12,6 +12,7 @@ interface ClubProfileData {
   price: number;
   button_text: string;
   button_color: string;
+  button_icon: string;
   deliverable_link: string | null;
   photos_count: number;
   videos_count: number;
@@ -41,6 +42,7 @@ const ClubProfile = () => {
         setProfile({
           ...profileRes.data,
           button_color: profileRes.data.button_color || '#f97316',
+          button_icon: profileRes.data.button_icon || '🔥',
           deliverable_link: profileRes.data.deliverable_link || null
         });
       }
@@ -183,7 +185,7 @@ const ClubProfile = () => {
             }}
           >
             <div className="relative flex items-center justify-center gap-2 rounded-2xl bg-background px-6 py-4 transition-all group-hover:bg-background/80">
-              <Sparkles className="w-5 h-5" style={{ color: buttonColor }} />
+              <span className="text-xl">{profile?.button_icon || '🔥'}</span>
               <span className="font-bold text-foreground">{profile?.button_text || 'Desbloquear'}</span>
               <span className="font-bold" style={{ color: buttonColor }}>
                 R$ {profile?.price?.toFixed(2).replace('.', ',') || '29,90'}
@@ -231,32 +233,50 @@ const ClubProfile = () => {
 
         {/* Preview Gallery */}
         <div className="mt-8">
-          <p className="text-sm text-muted-foreground mb-3">Prévia do conteúdo</p>
-          <div className="grid grid-cols-3 gap-1.5">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm font-medium text-foreground">Prévia do conteúdo</p>
+            <span className="text-xs text-muted-foreground px-2 py-1 bg-card rounded-full">
+              🔒 Bloqueado
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
             {galleryItems.length > 0 ? (
-              galleryItems.map((item) => (
+              galleryItems.map((item, index) => (
                 <div 
                   key={item.id}
-                  className="aspect-square rounded-lg overflow-hidden relative group cursor-pointer"
+                  className="aspect-[3/4] rounded-xl overflow-hidden relative group cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+                  style={{
+                    animationDelay: `${index * 100}ms`
+                  }}
                 >
                   {item.type === 'photo' ? (
                     <img 
                       src={item.url}
                       alt="Preview"
-                      className="w-full h-full object-cover blur-md scale-105"
+                      className="w-full h-full object-cover blur-lg scale-110"
                     />
                   ) : (
                     <video 
                       src={item.url}
-                      className="w-full h-full object-cover blur-md scale-105"
+                      className="w-full h-full object-cover blur-lg scale-110"
                     />
                   )}
-                  <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
-                    {item.type === 'video' ? (
-                      <Play className="w-6 h-6 text-foreground/70" fill="currentColor" />
-                    ) : (
-                      <Lock className="w-5 h-5 text-foreground/70" />
-                    )}
+                  <div 
+                    className="absolute inset-0 flex flex-col items-center justify-center gap-2"
+                    style={{ 
+                      background: `linear-gradient(180deg, ${buttonColor}20 0%, ${buttonColor}40 100%)` 
+                    }}
+                  >
+                    <div 
+                      className="w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-sm"
+                      style={{ backgroundColor: `${buttonColor}30` }}
+                    >
+                      {item.type === 'video' ? (
+                        <Play className="w-6 h-6 text-white drop-shadow-lg" fill="currentColor" />
+                      ) : (
+                        <Lock className="w-5 h-5 text-white drop-shadow-lg" />
+                      )}
+                    </div>
                   </div>
                 </div>
               ))
@@ -264,10 +284,18 @@ const ClubProfile = () => {
               [...Array(6)].map((_, i) => (
                 <div 
                   key={i}
-                  className="aspect-square rounded-lg overflow-hidden relative bg-card"
+                  className="aspect-[3/4] rounded-xl overflow-hidden relative shadow-lg"
+                  style={{
+                    background: `linear-gradient(135deg, ${buttonColor}10 0%, ${buttonColor}20 100%)`
+                  }}
                 >
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <Lock className="w-5 h-5 text-muted-foreground/50" />
+                    <div 
+                      className="w-10 h-10 rounded-full flex items-center justify-center"
+                      style={{ backgroundColor: `${buttonColor}20` }}
+                    >
+                      <Lock className="w-4 h-4" style={{ color: buttonColor }} />
+                    </div>
                   </div>
                 </div>
               ))
